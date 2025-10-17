@@ -1,0 +1,148 @@
+========== DATASET 1 ==========
+Interviewer: Design a global payment system handling 1M TPS with <100ms latency; how handle failures?
+Candidate: Right... Employ geo-replicated data stores, distributed consensus (e.
+Interviewer: How does global Paxos/Raft achieve <100ms latency for 1M TPS.
+Candidate: Global Paxos/Raft cannot achieve <100ms latency; cross-continental network RTTs inherently exceed 100ms for consensus acknowledgments.
+Interviewer: Then how do you guarantee atomic transaction integrity globally for payments.
+Candidate: Employ a globally distributed database (e.
+Interviewer: What commit protocol ensures global atomicity without synchronous global consensus latency.
+Candidate: Right... Sagas orchestrate local transactions with compensating actions, ensuring eventual global atomicity without synchronous global consensus latency.
+Interviewer: How are double-spends prevented when a Saga fails mid-process.
+Candidate: Services pre-authorize resources with unique transaction IDs, releasing reservations upon Saga failure.
+Interviewer: What primitive ensures atomic reservation of specific funds by a unique ID.
+Candidate: Actually... Distributed lock on the `fund_id` ensures atomic exclusive reservation of funds.
+Interviewer: How does a distributed lock on `fund_id` avoid becoming a bottleneck for 1M TPS.
+Candidate: Granular, per-`fund_id` locks enable concurrent operations on distinct funds, scaling to 1M TPS via sharded Redis/ZooKeeper.
+Interviewer: What if many concurrent payments target the *same* hot `fund_id`.
+--- Difficulty: HARD | Student Level: EXCELLENT | Exchanges: 8 ---
+
+
+========== DATASET 2 ==========
+Interviewer: Design a simple to-do list app; what's your database design?
+Candidate: Um, just a `todos` table with a task description and a completed boolean, I guess.
+Interviewer: How does the app update the database when a task is marked complete.
+Candidate: the app probably sends an update request to the database, I guess.
+Interviewer: Does the phone app talk directly to the database.
+Candidate: Um, no, I think it talks to a backend server.
+Interviewer: How does that server update the database.
+--- Difficulty: EASY | Student Level: STRUGGLING | Exchanges: 4 ---
+
+
+========== DATASET 3 ==========
+Interviewer: Design a distributed cache system; how do you handle consistency?
+Candidate: We'd probably use a write-through strategy with cache invalidation or TTLs for reasonable consistency.
+Interviewer: How would data be distributed across these cache nodes.
+Candidate: Probably consistent hashing, using a hash of the key to distribute data across nodes for scalability.
+Interviewer: With consistent hashing, how would you handle a node going offline or being added.
+Candidate: Only a small fraction of keys, usually those adjacent on the ring, probably need remapping or migration.
+Interviewer: How is the actual cached data replicated for fault tolerance when a node fails.
+Candidate: Well, data is usually replicated across multiple peer nodes, probably via consistent hashing or primary-secondary copies.
+Interviewer: With replicated copies, how do writes ensure consistency across all replicas.
+Candidate: Probably... Writes probably use a leader or quorum (W>1) to coordinate and ensure consistency across replicas.
+Interviewer: Given quorum writes, how would reads ensure consistency with those replicated copies.
+--- Difficulty: MEDIUM | Student Level: AVERAGE | Exchanges: 6 ---
+
+
+========== DATASET 4 ==========
+Interviewer: Design a simple online bookstore; how would you structure it?
+Candidate: A React frontend consumes REST APIs from stateless Node.
+Interviewer: That's a good start.
+Candidate: Ready to discuss horizontal scaling for 10M QPS using load balancers and database sharding tradeoffs.
+Interviewer: That's keen.
+Candidate: Balancing eventual consistency with strong consistency impacts performance and data integrity across distributed systems.
+Interviewer: Where would your bookstore's data, like books and users, be stored.
+Candidate: Book and user data would be stored in a managed relational database service like AWS RDS PostgreSQL.
+Interviewer: How does your Node.
+Candidate: Node.
+Interviewer: How does Node.
+--- Difficulty: EASY | Student Level: EXCELLENT | Exchanges: 6 ---
+
+
+========== DATASET 5 ==========
+Interviewer: Design Netflix's CDN serving 200M concurrent streams; how minimize buffering globally?
+Candidate: Um, just put servers closer to everyone, caching popular things, I guess.
+Interviewer: How does Netflix practically ensure last-mile performance across diverse global ISPs.
+Candidate: Um, I guess they place servers close to users and work directly with ISPs.
+Interviewer: When ISPs partition a region, how does Netflix prioritize content metadata consistency vs availability.
+Candidate: Um, I guess availability is probably more important for Netflix metadata.
+Interviewer: Which eventual consistency model would you then implement for this metadata.
+Candidate: Um, I guess causal consistency, so related writes are eventually seen in order.
+Interviewer: How do vector clocks scale for global causal consistency.
+Candidate: I guess the vector size grows with nodes, which.
+Interviewer: What practical mechanisms offer causal consistency without unbounded state.
+--- Difficulty: HARD | Student Level: STRUGGLING | Exchanges: 6 ---
+
+
+========== DATASET 6 ==========
+Interviewer: Design a simple to-do list app; what's your database design?
+Candidate: a `tasks` table with `id`, `description`, `is_completed`, and maybe a `user_id` for multi-user support.
+Interviewer: What kind of server would manage user requests for these tasks.
+Candidate: Maybe... Uhm, probably an application server or maybe a web server, handling those user API requests.
+Interviewer: How does a user's web browser interact with that application server.
+Candidate: Maybe... Uh, the browser probably makes an HTTP request over TCP/IP to the server, getting HTML back maybe.
+Interviewer: What if many users access the server at the same time.
+Candidate: Maybe... We'd probably use a load balancer and maybe multiple servers to distribute the requests.
+Interviewer: How would those multiple servers share the database.
+Candidate: Those servers would probably connect to a shared, maybe replicated, central database instance for data access.
+Interviewer: Why would you replicate that central database.
+Candidate: for high availability, you know, and maybe to improve read scalability if traffic is high.
+Interviewer: How does data get copied between those database replicas.
+Candidate: Data is probably copied via transaction logs from the primary, often asynchronously.
+Interviewer: What's a potential issue with asynchronous replication.
+--- Difficulty: EASY | Student Level: AVERAGE | Exchanges: 8 ---
+
+
+========== DATASET 7 ==========
+Interviewer: Design a scalable web crawler; how do you avoid duplicates?
+Candidate: Use a distributed Bloom filter and persistent URL/content hash storage (e.
+Interviewer: How do you manage the URLs to crawl.
+Candidate: A Kafka queue feeds URLs; a Redis set ensures deduplication; workers crawl respecting politeness delays.
+Interviewer: How do workers fetch from Kafka and coordinate politeness across domains.
+Candidate: Workers in a consumer group read Kafka, then consult a Redis-backed distributed rate limiter per domain before external...
+Interviewer: How does Redis enforce per-domain rate limits for politeness.
+--- Difficulty: MEDIUM | Student Level: EXCELLENT | Exchanges: 4 ---
+
+
+========== DATASET 8 ==========
+Interviewer: Design a messaging system like WhatsApp; what's your delivery guarantee?
+Candidate: I guess messages are delivered, like, at least once.
+Interviewer: Given "at least once" delivery, how do you handle duplicate messages.
+Candidate: Um, I guess we'd need some way to check if we processed it before.
+Interviewer: What identifier would you use for each message.
+Candidate: I guess.
+Interviewer: How would you generate that identifier.
+Candidate: like, an auto-incrementing number from the database.
+Interviewer: How do you ensure unique auto-incrementing IDs across distributed databases.
+Candidate: Um, I guess a central service gives out IDs.
+Interviewer: How do you ensure high availability and performance for that central ID service.
+Candidate: I guess we'd have backups, like, copies running in case one fails.
+Interviewer: How do those copies ensure unique IDs without collisions.
+Candidate: Um, I guess they use timestamps, maybe with a server ID or something.
+Interviewer: How does the timestamp component of your ID help order messages.
+--- Difficulty: MEDIUM | Student Level: STRUGGLING | Exchanges: 8 ---
+
+
+========== DATASET 9 ==========
+Interviewer: Design a distributed file system like GFS storing 100PB; how ensure consistency?
+Candidate: Maybe... We'd probably use a primary-replica model with a central master for leases and write coordination, maybe.
+Interviewer: How does *that* central master ensure linearizability given network partitions.
+Candidate: Maybe... Well, it probably uses quorum consensus or stops accepting writes during partitions to maintain linearizability.
+Interviewer: How does quorum consensus *resolve split-brain* to re-establish linearizability post-partition.
+Candidate: Uhm, only one partition forms a write quorum, so the other probably stalls, maybe preventing conflicting updates.
+Interviewer: What explicit mechanism prevents the *stalled* partition from believing it can form a write quorum.
+--- Difficulty: HARD | Student Level: AVERAGE | Exchanges: 4 ---
+
+
+========== DATASET 10 ==========
+Interviewer: Design a distributed transaction system with strict consistency; what's your consensus protocol?
+Candidate: Raft, ensuring distributed agreement on transaction outcomes and replication logs for strict consistency and fault tolerance.
+Interviewer: How does Raft alone guarantee global serializability for multi-shard transactions.
+Candidate: Raft alone provides single-shard serializability; multi-shard transactions require a distributed commit protocol like 2PC.
+Interviewer: How does 2PC's blocking nature affect availability during coordinator failures.
+Candidate: Coordinator failure leaves participants blocked, holding locks indefinitely, rendering resources unavailable until recovery or manual intervention.
+Interviewer: How do you automatically unblock participants after coordinator failure.
+Candidate: Participants use heartbeats to detect failure, then elect a new coordinator via Raft to unblock operations.
+Interviewer: How does the new coordinator learn the transaction's outcome.
+Candidate: The coordinator collects `commit` or `abort` votes from all participants during the `prepare` phase.
+Interviewer: What durable state does the new coordinator consult to determine outcome.
+--- Difficulty: HARD | Student Level: EXCELLENT | Exchanges: 6 ---
