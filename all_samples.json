@@ -1,0 +1,3652 @@
+[
+  {
+    "id": 1,
+    "student_level": "excellent",
+    "difficulty": "medium",
+    "exchanges": 10,
+    "kickoff_question": "Design a rate limiter handling 100K requests/sec; how would you build it?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a rate limiter handling 100K requests/sec; how would you build it?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Use a Redis cluster for distributed sliding window counters, handling 100K req/sec, prioritizing throughput over strict global consistency."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would applications interact with this Redis-based rate limiter."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Applications call a rate limiter API with a client ID; the service queries Redis, then responds 200 OK..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does that service implement the sliding window counter logic using Redis."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "It uses a Redis Sorted Set: `ZADD` adds new events, `ZREMRANGEBYSCORE` trims old, and `ZCOUNT` totals the sliding..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the service use that `ZCOUNT` result to determine if a request is allowed."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "If the `ZCOUNT` result (current requests in window) is less than or equal to the configured rate limit,..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "If allowed, what Redis operations ensure the counter is correctly incremented for that request."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Use Redis's atomic `INCR` or `INCRBY` commands to ensure the counter is correctly incremented across concurrent requests."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does `INCR`/`INCRBY` integrate with your `ZADD`/`ZREMRANGEBYSCORE`/`ZCOUNT` sliding window logic."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Each `INCR` triggers a `ZADD` of a timestamped entry; `ZCOUNT` measures increments within the window via `ZREMRANGEBYSCORE`."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What specific Redis operations, and in what order, atomically increment the sliding window counter for..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "A Lua script atomically executes `INCR key` then `EXPIRE key TTL` to increment the sliding window counter."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does that `INCR`/`EXPIRE` Lua script implement the `ZADD`/`ZREMRANGEBYSCORE`/`ZCOUNT` sliding window logic you described."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "The `INCR`/`EXPIRE` script manages fixed-window counters, unlike the sorted-set based sliding window with `ZADD`/`ZREMRANGEBYSCORE`."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "With the `INCR`/`EXPIRE` for fixed windows, how is the Redis key constructed to represent the..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Actually... The Redis key is `ratelimit:{client_id}:{window_start_timestamp}`, e."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the Lua script leverage that key format with `INCR`/`EXPIRE` to atomically check and..."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-21T20:49:51.963734Z"
+    }
+  },
+  {
+    "id": 2,
+    "student_level": "excellent",
+    "difficulty": "hard",
+    "exchanges": 6,
+    "kickoff_question": "Design a distributed transaction system with strict consistency; what's your consensus protocol?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a distributed transaction system with strict consistency; what's your consensus protocol?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Raft provides strict consistency through leader-based log replication, ensuring all transactions are linearly ordered across the cluster."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you guarantee atomic commit across *multiple Raft groups* for a single transaction."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Employ Two-Phase Commit orchestrated by a coordinator across Raft group leaders, accepting higher latency for atomicity."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does that 2PC coordinator recover from failure *during* commit."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Coordinator reads its durable log, finds the `COMMIT` record, and re-sends `COMMIT` messages to all participants."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if the coordinator fails *before* logging the final decision, blocking participants."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Coordinator recovers, finds no final decision in its log, unilaterally aborts the transaction, and notifies waiting participants."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do participants unblock if the coordinator *never* recovers after PREPARE."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Participants apply a heuristic decision (commit/abort) locally, risking inconsistency and requiring manual reconciliation."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How could Raft make the 2PC coordinator non-blocking and fault-tolerant."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-21T20:50:57.757210Z"
+    }
+  },
+  {
+    "id": 3,
+    "student_level": "average",
+    "difficulty": "medium",
+    "exchanges": 9,
+    "kickoff_question": "Design a video streaming platform; what are your key components?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a video streaming platform; what are your key components?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Probably video ingestion, distributed storage like S3, a global CDN for delivery, and maybe a metadata DB."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "After ingestion, how do you prepare the video for various devices and network conditions."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "We probably transcode to various resolutions and bitrates, then package for adaptive streaming like HLS/DASH for devices."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "After packaging, where are these multiple video renditions stored for efficient retrieval."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Hmm... They're probably stored in object storage like S3 for scalable, maybe CDN-backed efficient retrieval."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Beyond CDN, what system handles client streaming requests for segments."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "an origin server, likely with a media packager, handles serving the prepared stream segments."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "You mentioned an origin server for segments."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Uhm, yes, that origin server probably holds the pre-encoded video segments for initial CDN pulling, I think."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you scale that origin server for high demand."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "We'd probably scale horizontally with a load balancer and maybe add some caching to reduce hits."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What kind of caching strategy would you implement for the origin server."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess we'd probably use Cache-Control headers with max-age, maybe also ETags for conditional requests."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Beyond cache headers, what internal caching mechanism would the origin server use for segments."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Hmm... It probably uses an in-memory or fast disk-based cache, maybe managed by the application or OS, for popular..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Regarding that internal cache, how would you manage segment eviction."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-21T20:52:41.713583Z"
+    }
+  },
+  {
+    "id": 4,
+    "student_level": "struggling",
+    "difficulty": "hard",
+    "exchanges": 7,
+    "kickoff_question": "Design YouTube's video recommendation engine at petabyte scale; how do you optimize latency?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design YouTube's video recommendation engine at petabyte scale; how do you optimize latency?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess, caching popular videos would reduce latency."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does caching *popular videos* specifically optimize personalized recommendation latency."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, popular videos are already in cache, so recommendations load faster, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "But popular video caching reduces *general* video serving latency."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess it frees up origin servers, so non-cached requests are faster."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Beyond video serving, how is *personalization* computed quickly across petabytes of user/video data."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess, using distributed processing like Spark to pre-calculate recommendations."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How are those pre-calculated recommendations then *served* for low-latency personalized retrieval."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess they're stored in a fast cache, like Redis, for quick retrieval."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does Redis store petabytes of personalized recommendations for sub-millisecond retrieval."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess Redis keeps it all in memory for speed, maybe sharded."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Given Redis is in-memory, how do you manage petabytes for sub-millisecond retrieval."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-21T20:54:13.871549Z"
+    }
+  },
+  {
+    "id": 5,
+    "student_level": "average",
+    "difficulty": "easy",
+    "exchanges": 10,
+    "kickoff_question": "Design a basic voting system; how would you count votes?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a basic voting system; how would you count votes?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Hmm, probably query the database, maybe `COUNT(*)` on a `votes` table grouped by candidate, you know."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would a vote actually reach that database table from a user's browser."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Maybe the browser sends an API request to a backend, which probably inserts it into the database table."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if many people check the vote count simultaneously."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Maybe... Uhm, we'd probably use a CDN for the vote count and maybe some caching layers to handle all..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would your cached vote counts stay up-to-date with new votes."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "update cached counts directly upon new votes, or via a pub/sub system for broader consistency."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What part of your system would push new counts to the cache."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "a dedicated aggregation service pushes new counts to the cache asynchronously."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Where does that aggregation service get the latest vote data."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "It probably consumes a Kafka topic for real-time vote updates, or maybe polls a fast cache."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What service would publish new vote events to that Kafka topic."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Our Voting API service would probably publish new vote events to the Kafka topic."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Why separate publishing to Kafka from the vote's database insert."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "to avoid blocking the database insert if Kafka is slow, probably for better decoupling and async processing."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Where are the individual votes stored permanently for auditing."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Hmm, for auditing, individual votes are probably stored permanently in an append-only database, perhaps a ledger system."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Does that append-only database also feed into your vote counting process."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-21T20:56:13.092102Z"
+    }
+  },
+  {
+    "id": 6,
+    "student_level": "average",
+    "difficulty": "easy",
+    "exchanges": 10,
+    "kickoff_question": "Design a basic image upload service; how would you store images?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a basic image upload service; how would you store images?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "use object storage like S3, it's pretty scalable and cost-effective for large image files, maybe with a..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Good choice."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Hmm... Ah, good."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What server component handles the image upload request from the user."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Probably... The application server probably handles the image upload, perhaps an API Gateway initially routes it."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the application server store the image data into S3."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I think... The application server probably uses the AWS SDK to upload the image data directly to an S3 bucket."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What information about the uploaded image would you store in a database."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "its storage URL, unique ID, maybe file size, and basic type for indexing."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would a user later view their uploaded image."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "from a CDN or object storage URL, maybe through a web server, displayed in their browser."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would you scale the application server to handle more uploads."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I'd probably add more application servers behind a load balancer, maybe offloading large uploads directly to object storage..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the load balancer help distribute requests to your multiple application servers."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "It probably uses algorithms like round robin or least connections, checking server health, to route requests to multiple..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the load balancer know if an application server is healthy."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Probably... Usually, it sends periodic health checks to a specific endpoint, maybe expecting a 200 OK status."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What does the load balancer do when a server fails its health check."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T08:11:04.051170Z"
+    }
+  },
+  {
+    "id": 7,
+    "student_level": "average",
+    "difficulty": "medium",
+    "exchanges": 10,
+    "kickoff_question": "Design a rate limiter handling 100K requests/sec; how would you build it?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a rate limiter handling 100K requests/sec; how would you build it?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I'd probably use a distributed Redis cluster for a sliding window counter, maybe sharding by user ID for..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would the sliding window counter be implemented within Redis."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "use a Redis Sorted Set, storing events with timestamps, then ZRANGEBYSCORE to count and maybe ZREM old..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "At 100K QPS, how do you optimize those ZRANGEBYSCORE/ZREM operations."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "We'd probably shard the sorted sets across multiple Redis instances to distribute the intense read/write load."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Even with sharding, how do you handle the potential performance cost of large sorted sets..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "paginate requests across shards, or maybe a dedicated aggregation service could help."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Instead of potentially large sorted sets, what simpler Redis structure could approximate the sliding window..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "a `LIST` with `LTRIM` to cap its size would probably approximate the sliding window."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "With a `LIST` and `LTRIM`, how would you determine if a request is allowed."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "`LTRIM` normalizes the request by removing leading characters, then `LIST` validates if the processed value is allowed."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What exact Redis commands on the `LIST` would you use to decide if a request..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Probably `LPUSH` to queue requests, then `LPOP` for processing; maybe `LRANGE` to inspect its status."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Given `LPUSH` and `LTRIM` for the sliding window, how would `LLEN` determine if a request..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "`LLEN` probably counts entries, and if it's over the window limit after `LPUSH`, maybe deny the request."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would the `LIST` prune old timestamps to ensure `LLEN` reflects the count within the..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "a `ZSET` with scores as timestamps and `ZREMRANGEBYSCORE` would probably be used for pruning and `LLEN`."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "`ZREMRANGEBYSCORE` works on Sorted Sets; how would a `LIST` prune old entries based on time."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T08:13:40.690734Z"
+    }
+  },
+  {
+    "id": 8,
+    "student_level": "struggling",
+    "difficulty": "easy",
+    "exchanges": 6,
+    "kickoff_question": "Design a simple online bookstore; how would you structure it?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a simple online bookstore; how would you structure it?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess a database and a web server."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Great start."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, thanks, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Exactly."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess, that's the main."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would a user buy a book using these components."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, the user clicks buy, and then it."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What does the web server do with that click."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, it gets the HTTP request and sends back a response, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What does the web server tell the database about the purchase."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T08:14:44.982925Z"
+    }
+  },
+  {
+    "id": 9,
+    "student_level": "average",
+    "difficulty": "medium",
+    "exchanges": 10,
+    "kickoff_question": "Design a rate limiter handling 100K requests/sec; how would you build it?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a rate limiter handling 100K requests/sec; how would you build it?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Hmm... I'd maybe use Redis for distributed token buckets, sharding them for 100K RPS throughput, probably using Lua scripts..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do clients determine which Redis shard to query for a given user's rate limit."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Hmm... Clients probably hash the user ID to determine the correct shard, maybe using consistent hashing."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do clients dynamically learn and update their consistent hashing ring."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Clients probably query a service discovery service, perhaps Zookeeper, long-polling for updates to their consistent hashing ring."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "You mentioned Lua scripts; how does that script implement the token bucket logic within Redis."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "The Lua script probably fetches current tokens, calculates refills, then `SET`s and decrements them atomically."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if a Redis instance holding a user's bucket key fails."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Redis Sentinel or Cluster would probably promote a replica, keeping the bucket key available."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "With Redis replica promotion, how do you handle potential token count discrepancies."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "You'd probably reconcile token counts with a more persistent store, since some recent writes could be lost on..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "When and how does this reconciliation process occur with the persistent store."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I think... It often runs periodically in the background, probably comparing local state with the persistent store's data to resolve..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the reconciliation process resolve conflicting token counts between Redis and the persistent store."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "We'd probably re-apply a log of changes from the persistent store to correct Redis, maybe during off-peak hours."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the persistent store receive and maintain this \"log of changes\" for every token..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "it probably appends new changes sequentially to a write-ahead log, then flushes it for durability."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What data does each log entry contain for a token's state change."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T08:16:49.196171Z"
+    }
+  },
+  {
+    "id": 10,
+    "student_level": "excellent",
+    "difficulty": "easy",
+    "exchanges": 6,
+    "kickoff_question": "Design a basic URL shortening service; what's your approach?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a basic URL shortening service; what's your approach?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Use Base62 short codes stored in a distributed key-value store, redirecting with HTTP 302 for 10K writes/sec."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Before a distributed store, what simple database would you use and what information would it..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I'd use a single PostgreSQL instance for transactional user data and critical application state before scaling."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What specific data fields would your database table store for each short URL."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Short code, original URL, creation timestamp, and total click count."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "When a user creates a short URL, how does your service generate and store it."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Generate a unique base62-encoded auto-incrementing ID as the short code, storing (short_code, long_URL) in a key-value store."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does your service use that stored data to redirect users."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Upon request, we fetch the long URL from DynamoDB via the short code, then issue an HTTP 302..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would you speed up these long URL lookups for many users."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T08:17:55.654544Z"
+    }
+  },
+  {
+    "id": 11,
+    "student_level": "excellent",
+    "difficulty": "easy",
+    "exchanges": 6,
+    "kickoff_question": "Design a simple to-do list app; what's your database design?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a simple to-do list app; what's your database design?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Two tables: `tasks (id, user_id, description, status)` and `users (id, username)` for a simple relational schema."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does a user's device connect to and interact with this database."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "User devices send HTTP/S requests to a backend service, which queries the database via a connection pool using..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What does the backend service do before querying the database."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "It authenticates users, validates input schema, enforces rate limits, and checks Redis cache for data."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the backend send the processed data back to the user's device."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "The backend returns processed data within an HTTP response payload, typically as JSON, over the established connection from..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if many users request their to-do lists simultaneously."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Cache popular lists in Redis and use read replicas to scale database read throughput for simultaneous requests."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if many users create new tasks at the same time."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T08:21:22.015290Z"
+    }
+  },
+  {
+    "id": 12,
+    "student_level": "struggling",
+    "difficulty": "medium",
+    "exchanges": 10,
+    "kickoff_question": "Design a distributed cache system; how do you handle consistency?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a distributed cache system; how do you handle consistency?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess we invalidate the old data."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you propagate invalidation messages to all relevant nodes."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess, a message queue could broadcast invalidation messages to all relevant nodes."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if a cache node is offline during invalidation broadcast."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess it just misses the invalidation message then."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does that offline node eventually become consistent upon returning."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess it asks the leader for all the updates it missed."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the leader track which specific updates each node missed."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess it tracks which updates each follower acknowledged."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the leader efficiently track acknowledged updates for each follower."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess it keeps like, a list of what each follower has confirmed."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does that \"list\" efficiently represent acknowledged updates for many followers."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess it tracks each follower's highest acknowledged update ID in the list."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the leader efficiently store the actual updates corresponding to those IDs for retransmission."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "it appends them to a persistent log file, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the leader efficiently retrieve specific update ranges from that log file."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess by using file pointers or offsets to seek."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does it manage efficient retrieval across multiple segmented log files."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T08:23:22.200742Z"
+    }
+  },
+  {
+    "id": 13,
+    "student_level": "average",
+    "difficulty": "hard",
+    "exchanges": 8,
+    "kickoff_question": "Design YouTube's video recommendation engine at petabyte scale; how do you optimize latency?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design YouTube's video recommendation engine at petabyte scale; how do you optimize latency?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Caching pre-computed, frequently accessed recommendations globally, maybe using CDNs, probably minimizes user-facing latency."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you maintain real-time personalization and freshness while relying on pre-computed global caches."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Probably a hybrid approach, serving pre-computed data but layering real-time deltas or user-specific updates for personalization."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you *atomically* merge pre-computed and real-time deltas at query time across disparate caches/stores."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Maybe a consistent versioning scheme across stores, applying deltas at query time via an optimistic merge or distributed..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What underlying distributed consensus protocol guarantees that optimistic merge's atomicity across disparate stores."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I think Two-Phase Commit (2PC) or maybe Three-Phase Commit (3PC) probably guarantees that atomicity across disparate stores."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does 2PC ensure availability given its blocking nature and coordinator SPOF."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "It probably doesn't ensure availability well; its blocking nature and coordinator SPOF make it highly vulnerable."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Which consensus family provides better availability and partition tolerance than 2PC for such merges."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Distributed consensus algorithms like Paxos or Raft probably offer better availability and partition tolerance for such merges."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does Paxos/Raft practically apply to *merging* divergent real-time deltas into pre-computed data."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Paxos/Raft probably ensures an ordered, consistent log of deltas, preventing divergence when applying to pre-computed data."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does a state machine *deterministically* apply ordered deltas to resolve merge conflicts."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T08:25:02.503182Z"
+    }
+  },
+  {
+    "id": 14,
+    "student_level": "struggling",
+    "difficulty": "hard",
+    "exchanges": 10,
+    "kickoff_question": "Design Twitter's timeline at 500M users with <50ms p99 latency; what's your caching strategy?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design Twitter's timeline at 500M users with <50ms p99 latency; what's your caching strategy?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess a big Redis cache for recent tweets."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does Redis ensure global timeline consistency across its distributed nodes."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess it relies on its master node to order all operations globally."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How is that global order maintained across *sharded* Redis instances at 500M users."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess we could use a global counter, somehow."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does a *single* global counter ensure availability and performance at millions of QPS across..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess, maybe it's sharded, or uses a really fast in-memory database."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do sharded counters provide a *single, global, monotonic order* for timeline consistency."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess sharded counters scale counts, but not really *global monotonic order* directly."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "So how *do* you establish global monotonic order *without* a single coordinator or sharded counters."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess, some sort of distributed, uh, timestamping protocol."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does a distributed timestamp ensure global monotonic order without a central coordinator."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess logical clocks increment, and nodes sort of."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do logical clocks provide *total* global order without tie-breaking rules."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess their sequential incrementing makes a unique global order for events."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does sequential incrementing guarantee *globally unique* ordering across concurrent events."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess a single, centralized counter ensures unique global ordering."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Given a single counter bottlenecks at scale, what distributed protocol *ensures* total global order for..."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T08:27:09.433963Z"
+    }
+  },
+  {
+    "id": 15,
+    "student_level": "struggling",
+    "difficulty": "hard",
+    "exchanges": 10,
+    "kickoff_question": "Design a globally distributed URL shortening service handling 100K writes/sec; what's your architecture?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a globally distributed URL shortening service handling 100K writes/sec; what's your architecture?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess a globally sharded database, and, uh, some API layer."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What's your sharding key and consistency model for global writes."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, user ID for sharding, and I guess eventual consistency for global writes."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you guarantee unique short URLs globally with eventual consistency."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess a distributed ID generator, then eventually replicate and check for collisions."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you guarantee unique short URL mapping *globally* for 100K writes/sec, before replication."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "a global counter."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What's the latency impact of a globally synchronized counter for 100K QPS."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess it would be a huge bottleneck, causing really high latency."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would you pre-allocate unique short URLs globally for 100K QPS without a single counter."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess we could pre-generate huge lists of random short strings, then check for uniqueness."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you coordinate multiple generators to avoid duplicate pre-allocated strings."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess a central service could, um, assign unique pre-allocated strings."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does that central service distribute unique ranges without contention."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, it maybe pre-allocates ID ranges to workers, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What consensus mechanism guarantees non-overlapping range assignments."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess Raft."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does Raft leader election impact range assignment availability during failures."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T08:29:36.991567Z"
+    }
+  },
+  {
+    "id": 16,
+    "student_level": "average",
+    "difficulty": "hard",
+    "exchanges": 8,
+    "kickoff_question": "Design a global payment system handling 1M TPS with <100ms latency; how handle failures?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a global payment system handling 1M TPS with <100ms latency; how handle failures?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "We'd probably use idempotent retries and durable queues for reliability, maybe with geo-redundancy for global resilience."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What specific replication strategy ensures strong consistency across your geo-redundant sites at 1M TPS."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "a global synchronous Paxos or Raft implementation, maybe, requiring extremely low-latency inter-site links for that TPS."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does global synchronous consensus meet <100ms latency for 1M TPS."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Global synchronous consensus probably can't meet that, limited by speed of light and coordination overhead."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "If not global synchronous, how do you achieve strong consistency for payment debits globally."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "We could probably use a consensus algorithm like Paxos, maybe with regional leaders and a careful two-phase commit..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does 2PC ensure <100ms latency for a cross-continental debit."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Probably not; 2PC's multiple cross-continental network round-trips would likely exceed 100ms due to physical latency."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "If neither, what architecture provides debit integrity globally within 100ms."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "A geo-distributed transactional database, probably using Raft/Paxos for multi-region consistency, might provide debit integrity within 100ms."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does multi-region Raft/Paxos avoid cross-continental latency for global debit commit."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "It probably localizes the Raft/Paxos leader and its quorum to a primary region for fast local commits, asynchronously..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does asynchronous propagation ensure global debit integrity."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T09:48:00.534590Z"
+    }
+  },
+  {
+    "id": 17,
+    "student_level": "excellent",
+    "difficulty": "hard",
+    "exchanges": 8,
+    "kickoff_question": "Design Twitter's timeline at 500M users with <50ms p99 latency; what's your caching strategy?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design Twitter's timeline at 500M users with <50ms p99 latency; what's your caching strategy?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Cache pre-rendered home timelines in a sharded Redis cluster, updated asynchronously by fan-out-on-write, for <50ms p99 reads."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you handle divergent timelines during fan-out failures."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Employ idempotent retries with sequence numbers and a reconciliation service for eventual consistency across recipients."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does your reconciliation service determine the definitive timeline order after prolonged network partitions."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Reconciliation consolidates event logs, establishing definitive order by validating global sequence IDs from the primary ledger."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What consensus protocol maintains the global sequence ID's definitive order during partitions."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Raft's strong leader ensures definitive global sequence ID order, resilient to network partitions."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does Raft scale global sequence ID generation to millions of writes per second."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "A Raft leader reserves large ID blocks via consensus, then dispenses IDs locally from its block for millions/sec..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does Raft prevent ID gaps or duplicates during leader failover with block allocation."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Actually... Raft ensures block allocation requests are committed log entries, enabling new leaders to continue ID allocation sequentially without..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does a new leader guarantee unique IDs from a partially used, committed block after..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "New leader retrieves the block's last-used ID from durable shared storage, resuming allocation from that point."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How is 'last-used ID' in durable shared storage kept consistent with Raft's log to guarantee..."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T09:50:20.862496Z"
+    }
+  },
+  {
+    "id": 18,
+    "student_level": "excellent",
+    "difficulty": "easy",
+    "exchanges": 9,
+    "kickoff_question": "Design a basic chat application; what components do you need?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a basic chat application; what components do you need?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Web/mobile clients, an application server, a database, and WebSockets for real-time messaging."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Describe the path of a single chat message, from sender to receiver."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Sender client sends to API gateway, message queues, persists, then push service delivers via WebSocket to receiver."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Why are message queues helpful when many users send messages."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "They decouple senders from receivers, asynchronously buffering peak message throughput to ensure system stability."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "If many messages arrive, how do we process them faster."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Distribute messages via a queue (e."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do more servers help process messages from the queue faster."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "More consumer servers pull and process messages in parallel, increasing aggregate throughput from 100 to 1000 messages/sec."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What about storing all those processed messages quickly."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Apache Kafka durably stores processed messages as a high-throughput append-only log, handling millions of writes/sec."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do users then view their past conversations."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "A UI component requests paginated history from a Conversation Service, fetching from a durable, sharded database (e."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Why is sharding helpful for many users viewing history."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Sharding distributes history data and query load across servers, boosting read throughput and storage capacity for many concurrent..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How can we make frequent history lookups even faster for many users."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T09:52:09.174373Z"
+    }
+  },
+  {
+    "id": 19,
+    "student_level": "excellent",
+    "difficulty": "hard",
+    "exchanges": 10,
+    "kickoff_question": "Design YouTube's video recommendation engine at petabyte scale; how do you optimize latency?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design YouTube's video recommendation engine at petabyte scale; how do you optimize latency?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Right... Employ Approximate Nearest Neighbors (ANN) for vector search and extensively cache precomputed embeddings/recommendations in low-latency stores like Redis."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you ensure ANN index freshness for millions of QPS while maintaining sub-millisecond latency."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Replicated in-memory ANN indices use streaming delta updates and shadow indexing for sub-millisecond freshness at millions of QPS."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What consensus mechanism orders streaming delta updates."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Kafka leverages a consensus-elected partition leader for ordering streaming delta updates via its append-only, replicated log."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What consensus protocol does Kafka's controller employ for leader election."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Kafka's controller employs the KRaft (Kafka Raft) protocol for leader election to manage cluster metadata and state."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does KRaft's majority-vote requirement impact controller availability during network partitions."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Partitions preventing a majority quorum halt leader election/failover, blocking metadata updates and reducing controller availability."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does KRaft guarantee metadata consistency after a network partition heals."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "KRaft elects a new leader via quorum, ensuring it has the most up-to-date metadata log and fencing any..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does KRaft's required quorum write latency impact metadata commit speed at scale."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "KRaft's quorum write latency directly bottlenecks metadata commit throughput, limiting it to tens-to-hundreds milliseconds per operation."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does KRaft's metadata commit latency affect overall Kafka topic creation throughput."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "KRaft's Raft leader disk I/O commit latency directly limits topic creation throughput to its metadata commit frequency."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does KRaft's metadata commit latency impact dynamic partition reassignments."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "KRaft's metadata commit latency prolongs the time until dynamic partition reassignments are globally visible and effective."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does this latency affect recovery time from broker failures."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T09:54:27.544503Z"
+    }
+  },
+  {
+    "id": 20,
+    "student_level": "average",
+    "difficulty": "hard",
+    "exchanges": 8,
+    "kickoff_question": "Design a globally distributed URL shortening service handling 100K writes/sec; what's your architecture?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a globally distributed URL shortening service handling 100K writes/sec; what's your architecture?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "a sharded, globally replicated NoSQL database, distributed ID generation, and a CDN for redirects, should handle it."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you ensure globally unique, short IDs at 100K writes/sec without contention."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Maybe a distributed ID generator combining timestamps, unique worker IDs, and sequence numbers, then base64-encoded for brevity."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How are worker IDs distributed globally without contention or a single point of failure."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Maybe client-generated UUIDs provide probably unique worker IDs, avoiding central contention and single points of failure."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does a 128-bit client UUID component lead to a *short* ID, and what ensures..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "It's likely truncated or efficiently encoded, perhaps Base64, to appear short, and then the rest probably ensures uniqueness."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "If a 128-bit UUID is truncated for brevity, how is global uniqueness *guaranteed* for the..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Truncation probably removes the *guarantee*; uniqueness then relies on high probability from the remaining bits, not absolute certainty."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How are *collisions* handled, especially when multiple nodes generate the same truncated ID."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Typically, colliding nodes might retry generating the ID, perhaps incorporating a unique node or timestamp component to resolve..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What *distributed mechanism* detects and resolves truncated ID collisions."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "a distributed ID service with collision detection, maybe retrying on truncated ID clashes."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What distributed consistency model is required for collision detection, given 100K writes/sec."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T09:56:00.662347Z"
+    }
+  },
+  {
+    "id": 21,
+    "student_level": "struggling",
+    "difficulty": "medium",
+    "exchanges": 7,
+    "kickoff_question": "Design a scalable URL shortening service; what's your high-level approach?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a scalable URL shortening service; what's your high-level approach?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "generate a unique short ID for each long URL and store it, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What kind of database would you use for storing the ID and URL, and what..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess a NoSQL database, maybe a key-value store."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Given a key-value store, what's your expected data volume per day."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What daily volume of new URL shortens are you assuming."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess a few million new URL shortens daily."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would you generate unique short IDs for millions daily."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess, just, generate random strings and check for duplicates."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What's the collision probability with random string IDs at millions daily."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, very low, I guess, if the strings are long enough."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How many characters would your random short ID be for millions daily."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T10:00:52.552483Z"
+    }
+  },
+  {
+    "id": 22,
+    "student_level": "struggling",
+    "difficulty": "medium",
+    "exchanges": 8,
+    "kickoff_question": "Design a scalable URL shortening service; what's your high-level approach?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a scalable URL shortening service; what's your high-level approach?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess we'd store the long URL and somehow make a short one."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Beyond storing, what are the main services or components handling short URL creation and redirection."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Uh, a service for code generation, and another for handling redirects, I think."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does your code generation service create unique short URLs efficiently."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess it generates unique IDs and encodes them, maybe."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Where do these unique IDs come from in a distributed system."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess a central server generates them, maybe counting up."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would that central ID generator handle high throughput and avoid being a single point..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess we'd just."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would you scale that central ID generator and ensure its availability."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "For that central ID counter, how would you distribute the load or ensure redundancy."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess, replicate it and put a load balancer."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "If replicated, how do these multiple ID generators coordinate to ensure global uniqueness."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T10:02:22.066842Z"
+    }
+  },
+  {
+    "id": 23,
+    "student_level": "struggling",
+    "difficulty": "hard",
+    "exchanges": 6,
+    "kickoff_question": "Design Netflix's CDN serving 200M concurrent streams; how minimize buffering globally?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design Netflix's CDN serving 200M concurrent streams; how minimize buffering globally?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, deploy many servers, I guess, close to all users globally."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you ensure global consistency of content across caches at that scale."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess we just."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you propagate cache invalidations reliably to all edge nodes."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess, a message queue could push invalidation notices."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Which consistency model does *that* invalidation queue enforce."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess it enforces eventual consistency."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you address content staleness with eventual consistency."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess you, uh, just show the last updated timestamp."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does merely displaying a timestamp *prevent* serving stale streams."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T10:03:35.868598Z"
+    }
+  },
+  {
+    "id": 24,
+    "student_level": "struggling",
+    "difficulty": "medium",
+    "exchanges": 9,
+    "kickoff_question": "Design a real-time leaderboard for 1M gamers; what's your approach?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a real-time leaderboard for 1M gamers; what's your approach?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess, maybe a database to store scores, then update it constantly."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would your database provide real-time top scores for 1M gamers."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess we could use Redis to store the top scores, updated periodically."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Which Redis data structure would efficiently keep scores sorted for a leaderboard."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess a sorted set, for the scores."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the sorted set handle the constant updates for 1M players at scale."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess its internal data structure makes updates log(N) quick."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What QPS can a single Redis instance handle for those `log(N)` updates."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess tens of thousands QPS, maybe."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "If tens of thousands QPS isn't enough for 1M players, how would you scale Redis."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess we could, like, shard it across multiple Redis instances."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does sharding by player ID impact retrieving global top scores."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "you'd have to query all shards, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would you consolidate top scores from all shards to present a single global leaderboard."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess, um, you query all shards, get their top scores, then sort everything."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What's the latency impact of consolidating top results from hundreds of shards for each request."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T10:05:25.015280Z"
+    }
+  },
+  {
+    "id": 25,
+    "student_level": "excellent",
+    "difficulty": "medium",
+    "exchanges": 8,
+    "kickoff_question": "Design a scalable URL shortening service; what's your high-level approach?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a scalable URL shortening service; what's your high-level approach?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Store unique short ID to long URL mappings in a sharded NoSQL database, with load-balanced API and redirect..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you generate those unique short IDs for new URLs."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "We base62 encode unique sequential IDs provided by a distributed ID generator like Snowflake for shortness."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does base62 encoding Snowflake IDs ensure the desired short URL length."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Base62 encodes the 64-bit Snowflake ID into 11-12 characters, significantly fewer than decimal's ~20, ensuring compact URLs."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does that 11-12 character short ID integrate with your sharded NoSQL database design."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Actually... The 12-character ID serves as the sharding key, hashed to distribute data evenly across NoSQL database shards."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Given the ID is the sharding key, how does a redirect request find its long..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "A sharding function maps the ID to a specific database shard, which then directly retrieves the corresponding long..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "You mentioned retrieving from the shard; how would you optimize read performance for frequent redirects."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Leverage a global CDN and distributed Redis cluster to cache redirect mappings, achieving sub-5ms lookup latency."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "You mentioned Redis caching; how will you handle cache invalidation or eviction policies."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "We'll configure Redis `maxmemory-policy` (e."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "When a new short URL is generated, how do you ensure the cache is populated..."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T10:07:00.241993Z"
+    }
+  },
+  {
+    "id": 26,
+    "student_level": "excellent",
+    "difficulty": "hard",
+    "exchanges": 10,
+    "kickoff_question": "Design a global payment system handling 1M TPS with <100ms latency; how handle failures?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a global payment system handling 1M TPS with <100ms latency; how handle failures?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Implement multi-region active-active replication, distributed ACID transactions, and automated failover for resilience and data integrity."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Which specific protocol ensures global ACID atomicity within 100ms latency."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Right... No general protocol ensures global ACID atomicity within 100ms due to fundamental network latency constraints."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "If not global ACID, which consistency model ensures strong payment integrity for payments."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Serializable Isolation, ensuring transactions execute as if sequential, prevents all anomalies like double-spending."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Which distributed consensus mechanism supports global serializable isolation efficiently."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Google Spanner leverages TrueTime and Paxos consensus to efficiently provide global serializable isolation."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does TrueTime's uncertainty bound impact Spanner's commit latency."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Larger TrueTime uncertainty (epsilon) directly increases the mandatory commit wait duration, extending Spanner's commit latency for external consistency."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does Spanner *actively minimize* TrueTime's uncertainty bounds across global data centers."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Spanner leverages redundant GPS receivers and atomic clocks, continuously synchronizing local server daemons to minimize TrueTime's uncertainty bounds."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if TrueTime's uncertainty bound significantly widens globally."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Spanner transaction latency would increase significantly, reducing global throughput as commit waits lengthen to ensure external consistency."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What operational mode changes if TrueTime's uncertainty prevents meeting latency targets."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Right... System shifts from global external consistency to causal or eventual consistency to meet latency targets despite TrueTime uncertainty."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does application logic *detect* and *compensate* for the loss of external consistency."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Actually... Detect via timeouts and error codes; compensate with retries, Sagas, or reconciliation jobs."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do Sagas *explicitly guarantee* payment integrity when external consistency is lost."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T10:18:35.174370Z"
+    }
+  },
+  {
+    "id": 27,
+    "student_level": "average",
+    "difficulty": "hard",
+    "exchanges": 9,
+    "kickoff_question": "Design a real-time bidding system processing 10M bids/sec; what's your optimization approach?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a real-time bidding system processing 10M bids/sec; what's your optimization approach?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Hmm, probably sharded, in-memory systems like Redis or Aerospike would be key, maybe with aggressive data partitioning."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does aggressive partitioning guarantee even load distribution across 10M QPS to prevent hot spots."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Probably... Many tiny partitions enable dynamic re-assignment across nodes, probably preventing sustained hot spots."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What's the consensus overhead for dynamic partition migration."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Probably a few network round trips for consensus votes and state updates, maybe causing some temporary latency spikes."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What *specific* consensus protocol quantifies 'a few' rounds, and what's its latency impact on RTB..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Paxos, with its 2-3 message rounds, probably adds too much latency for strict RTB ad decisions directly."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What consistency model specifically mitigates Paxos's latency for the *actual* bid processing path."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "eventual consistency, for faster bid acceptance before Paxos finalizes global order."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What *specific* bid logic race conditions arise from eventual consistency during peak load."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Maybe concurrent bids on the same item cause stale 'highest bid' values, probably leading to incorrect winners."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What *specific* conflict resolution strategy ensures highest bid accuracy despite eventual consistency."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Perhaps 'Highest Bid Wins' upon conflict resolution, comparing all conflicting values, probably ensures the best accuracy."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the system *guarantee* that 'Highest Bid Wins' always selects the *latest* highest bid..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Maybe... We probably timestamp bids and use an atomic update or transaction to ensure the latest highest bid is..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does a distributed atomic update reconcile concurrent timestamped bids without global locking."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T10:20:29.706380Z"
+    }
+  },
+  {
+    "id": 28,
+    "student_level": "average",
+    "difficulty": "hard",
+    "exchanges": 6,
+    "kickoff_question": "Design a global payment system handling 1M TPS with <100ms latency; how handle failures?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a global payment system handling 1M TPS with <100ms latency; how handle failures?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "use async queues for processing, with idempotency and retries for sure, maybe circuit breakers for cascade prevention."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Global payment state consistency given async queue/worker failures."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Maybe... Well, uhm, probably idempotent operations and maybe a robust reconciliation service for eventual consistency."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does that reconciliation service guarantee 'exactly-once' financial outcomes, not just eventual consistency, despite worker..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "It probably leverages idempotent operations with unique transaction IDs and database transactions for exactly-once guarantees."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does that unique transaction ID prevent duplicate debits/credits across distributed retries."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "It's used to probably check a persistent store for that ID before processing, preventing duplicate debits/credits."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does that atomic check-then-write mechanism function across globally distributed data stores."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "it involves a consensus protocol like Paxos across a quorum of replicas to ensure global atomicity."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Paxos for every transaction."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T10:21:34.378125Z"
+    }
+  },
+  {
+    "id": 29,
+    "student_level": "average",
+    "difficulty": "hard",
+    "exchanges": 6,
+    "kickoff_question": "Design a distributed file system like GFS storing 100PB; how ensure consistency?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a distributed file system like GFS storing 100PB; how ensure consistency?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "a centralized master coordinates metadata, using leases to maybe ensure eventual consistency for data across chunkservers."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does that centralized master prevent concurrent conflicting writes to the *same data chunk* across..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "it locks the data chunk, probably assigning an exclusive write lease or using a global sequence."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the master ensure lease safety if the chunkserver crashes holding the exclusive lease."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Maybe... It likely waits for the lease to timeout, or perhaps detects the chunkserver crash via heartbeats."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What mechanism guarantees the master safely revokes a partitioned chunkserver's lease."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I think... The master probably grants a new lease with a higher version number, invalidating any old partitioned lease."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How is that partitioned chunkserver *fenced* from acting on its stale, lower-version lease."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "the master issues a new lease with a higher version number, rejecting any actions from the stale,..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the master *actively ensure* the partitioned chunkserver *stops* acting on its stale lease."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T10:23:03.388660Z"
+    }
+  },
+  {
+    "id": 30,
+    "student_level": "struggling",
+    "difficulty": "easy",
+    "exchanges": 6,
+    "kickoff_question": "Design a simple notification service; what's your approach?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a simple notification service; what's your approach?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess, a queue and then send them out somehow."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What would be the main parts handling a notification from start to end."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, a notifier, a queue, and then, a sender, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does a notification move through those parts, from your app to the user."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, the app sends it to a push service, then it arrives on the phone."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do your 'notifier', 'queue', and 'sender' fit into that flow."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "notifier puts things in queue, sender takes them out, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if the queue suddenly gets very full."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess we'd just."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if you had many 'senders' working on the queue."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T10:24:09.836645Z"
+    }
+  },
+  {
+    "id": 31,
+    "student_level": "struggling",
+    "difficulty": "easy",
+    "exchanges": 6,
+    "kickoff_question": "Design a basic voting system; how would you count votes?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a basic voting system; how would you count votes?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess just a counter in the database, like, incrementing it."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does a user's vote reach that database."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "a server."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the user's browser talk to your server."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "via HTTP, I think."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What information would the user's HTTP request send to your server."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess the URL path and, like, maybe some data in the body."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would the server know which item the user is voting for."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess the client sends the item ID in the request."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What database operation would your server perform with that item ID."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T13:29:32.704194Z"
+    }
+  },
+  {
+    "id": 32,
+    "student_level": "struggling",
+    "difficulty": "medium",
+    "exchanges": 8,
+    "kickoff_question": "Design a scalable web crawler; how do you avoid duplicates?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a scalable web crawler; how do you avoid duplicates?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess use a hash set to store URLs we've already seen."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "That works for a few; how will you scale the hash set for billions of..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Store full URLs in that scaled hash set."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess we just put the full URL strings directly into the hash set."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Storing full URLs is inefficient for billions; what compacted form would you use."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, maybe a short ID, like a hash, that maps to the full URL in a database, I..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Good."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, okay."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would you store and query billions of these short IDs to check for duplicates..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess I'd use a big database, then just query if an ID is there."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Which database system would efficiently store and query those billions of IDs."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess a NoSQL database, maybe like a document store."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would a document store efficiently handle billions of ID existence checks at high QPS."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T13:31:37.904979Z"
+    }
+  },
+  {
+    "id": 33,
+    "student_level": "excellent",
+    "difficulty": "hard",
+    "exchanges": 9,
+    "kickoff_question": "Design Twitter's timeline at 500M users with <50ms p99 latency; what's your caching strategy?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design Twitter's timeline at 500M users with <50ms p99 latency; what's your caching strategy?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Pre-computed user timelines are stored in a distributed in-memory cache (e."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What consistency model governs updates to your pre-computed timelines."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Eventual consistency, where updates propagate asynchronously to read replicas, becoming visible within seconds."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you handle read-your-own-writes with eventual consistency."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "A write operation returns a version token; subsequent reads for that user query a replica with at least..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you enforce that 'at least' constraint without violating sub-50ms p99 latency."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Utilize Kafka `acks=all` for durable writes and ensure idempotent message processing to handle retries."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the read request *quickly locate* such a replica within your 50ms budget."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Client queries a local service discovery agent for a healthy replica's IP, which is then cached."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does service discovery *know* a replica has the required version, quickly."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Replicas register their version as metadata; the registry filters available instances based on the client's version requirement."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the registry *quickly update and consistently query* version metadata across a large replica..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "A Raft leader quickly updates metadata, asynchronously replicating to followers; consistent queries target the leader or use client-side..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the Raft leader scale to serve *millions* of consistent version lookups per second."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Leader serves lookups directly from its in-memory state, bypassing follower consensus, achieving millions QPS on powerful hardware."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What happens to read latency during a Raft leader failover event at that scale."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T13:34:44.323690Z"
+    }
+  },
+  {
+    "id": 34,
+    "student_level": "struggling",
+    "difficulty": "medium",
+    "exchanges": 9,
+    "kickoff_question": "Design a rate limiter handling 100K requests/sec; how would you build it?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a rate limiter handling 100K requests/sec; how would you build it?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess just a counter for each user, checking if it's too high."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Where would these counters live for 100K RPS."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What kind of storage would hold these distributed counters."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, maybe Redis."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would Redis store and expire these counters for time-window limiting."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess Redis stores them as keys and uses a TTL to expire them."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Which Redis commands implement the actual time-window rate limiting check."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess `INCR` for counting, and `EXPIRE` for the time window."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you actually *check* if the rate limit is exceeded using `INCR` and `EXPIRE`."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "you check if the `INCR` value is, I guess, higher than your set limit."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does `EXPIRE` specifically manage the time window and reset for the next window when..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess it uses a timestamp to delete, and then a new window just."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does `EXPIRE` interact with `INCR` to define and reset the time window."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, `INCR` counts, `EXPIRE` deletes the key to reset the window, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you ensure `EXPIRE` is set correctly for the current time window, especially on..."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T13:36:32.829587Z"
+    }
+  },
+  {
+    "id": 35,
+    "student_level": "average",
+    "difficulty": "hard",
+    "exchanges": 8,
+    "kickoff_question": "Design Netflix's CDN serving 200M concurrent streams; how minimize buffering globally?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design Netflix's CDN serving 200M concurrent streams; how minimize buffering globally?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "We'd deploy vast global edge caches near ISPs, maybe pre-positioning popular content to minimize buffering for users."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you achieve petabyte-scale global content consistency with sub-millisecond edge cache invalidation."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Probably a global CDN with push-based, event-driven invalidation for sub-millisecond propagation, achieving eventual consistency across petabytes."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you reliably order and deliver sub-millisecond invalidation events globally."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "a distributed ledger-like global ordering system, then fast, replicated message queues for sub-millisecond delivery, probably."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does global sub-millisecond consensus overcome network latency."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "uses highly localized quorums and maybe optimistic updates to appear sub-millisecond globally, not truly overcoming speed of..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What happens during an optimistic update conflict globally."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "the write fails because a version mismatch is detected globally, prompting a retry or user notification."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do localized quorums ensure *global* conflict detection reliably."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "a global timestamping service or central coordinator provides ordering for localized quorums, ensuring reliable conflict detection."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does a central coordinator avoid becoming a global bottleneck."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "It probably uses sharding to distribute its responsibilities or offloads simpler tasks to other specialized services, maybe."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do sharded coordinators *globally* order events consistently."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T13:38:52.933861Z"
+    }
+  },
+  {
+    "id": 36,
+    "student_level": "struggling",
+    "difficulty": "medium",
+    "exchanges": 10,
+    "kickoff_question": "Design a ride-sharing service like Uber; what's your matching strategy?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a ride-sharing service like Uber; what's your matching strategy?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess we just find drivers closest to the rider, right."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would you efficiently find these closest drivers among many."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess just iterate through them all and find the minimum distance."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would you store and query driver locations for efficient distance lookups."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess a database, maybe with some kind of spatial index."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "You mentioned a spatial index; what kind, and how does it optimize queries."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess like an R-tree."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does an R-tree specifically help find the closest driver efficiently."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess it groups nearby drivers, so we check fewer."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Given many drivers constantly moving, how do you keep the R-tree updated and performant under..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess you'd re-insert points, but that sounds really slow for constant movement."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Given constant movement, how would you update the R-tree without slow re-insertion."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, maybe just update the bounding box around the moving object, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does only updating bounding boxes guarantee finding the *actual* closest driver efficiently."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess updating the boxes just makes the search area smaller."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "If only bounding boxes are updated, how does the R-tree *ensure correctness* for closest driver..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, it might miss the true closest driver if the expanded MBRs lead the search incorrectly."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you *ensure finding* the actual closest driver with *constant movement*."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T13:45:02.572019Z"
+    }
+  },
+  {
+    "id": 37,
+    "student_level": "average",
+    "difficulty": "easy",
+    "exchanges": 6,
+    "kickoff_question": "Design a basic voting system; how would you count votes?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a basic voting system; how would you count votes?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Hmm... Um, probably by incrementing candidate counts in a database, maybe with transactions for consistency."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Great."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Okay, I'm probably ready for the design prompt now, maybe a scalable API."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would a user actually cast their vote."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I think... Well, users would probably interact through a web portal, selecting an option then clicking 'submit' or 'confirm'."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does that 'submit' action on the web portal reach your database."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "So, the web portal probably sends an HTTP POST to a backend service, which then perhaps updates the..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What is that backend service, and how does it talk to the database."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Uh, it's probably our main REST API service, talking to the database maybe via an ORM or direct..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if many users vote at the same time."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T13:46:07.274546Z"
+    }
+  },
+  {
+    "id": 38,
+    "student_level": "struggling",
+    "difficulty": "medium",
+    "exchanges": 6,
+    "kickoff_question": "Design a messaging system like WhatsApp; what's your delivery guarantee?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a messaging system like WhatsApp; what's your delivery guarantee?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, we'd try to deliver messages, uh, with retries until acknowledged, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would clients handle the \"retries until acknowledged\" mechanism."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, a timer would trigger resending until an acknowledgment, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What server component would process messages and generate acknowledgements."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess a worker service or something would process it."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do messages reach the worker service for processing."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess a message queue sends them."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the message queue ensure messages aren't lost if a worker fails."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess the queue just, like, gives the message to someone else then."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the worker service acknowledge processing to the message queue."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T13:47:12.028116Z"
+    }
+  },
+  {
+    "id": 39,
+    "student_level": "struggling",
+    "difficulty": "medium",
+    "exchanges": 9,
+    "kickoff_question": "Design a scalable URL shortening service; what's your high-level approach?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a scalable URL shortening service; what's your high-level approach?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess we'd store the long URL and generate a short ID for it."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would you generate that short ID, ensuring uniqueness."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess just a random string, then check if it's already used."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What's the performance impact of those uniqueness checks at high generation rates."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess many database lookups would slow things down."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Given those lookups, how can you generate unique IDs more efficiently."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess we could just use an auto-increment ID from the database."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would that auto-increment ID scale across multiple database instances."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess you'd have, like, different starting points per instance."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would you coordinate unique ID ranges across those instances."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "pre-assign fixed ID blocks to each instance, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What happens if an instance exhausts its pre-assigned ID block."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess, um, it would just stop or need to get more."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would an instance dynamically get more ID blocks."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, it asks a central service for another block, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What happens if that central service for ID blocks fails."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T13:49:00.369477Z"
+    }
+  },
+  {
+    "id": 40,
+    "student_level": "struggling",
+    "difficulty": "easy",
+    "exchanges": 6,
+    "kickoff_question": "Design a simple to-do list app; what's your database design?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a simple to-do list app; what's your database design?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, maybe a `tasks` table with `id`, `description`, and `is_done` columns, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What main parts would your to-do list app have to let a user see and..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, a client-side part, and, I guess, a server to store the tasks."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would the client send a new task to the server to be saved."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, probably like, an HTTP request."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What does the server do with that HTTP request to save the task."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess it just takes the task data and saves it somewhere."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the server interact with the database to actually save the task."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, the server sends the task data to the database, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the server get tasks *from* the database to send back to the client."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-22T13:50:06.308756Z"
+    }
+  },
+  {
+    "id": 41,
+    "student_level": "excellent",
+    "difficulty": "hard",
+    "exchanges": 7,
+    "kickoff_question": "Design Twitter's timeline at 500M users with <50ms p99 latency; what's your caching strategy?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design Twitter's timeline at 500M users with <50ms p99 latency; what's your caching strategy?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Cache user timeline feeds (tweet IDs) and tweet content in sharded, in-memory Redis for <50ms reads."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you efficiently update millions of follower timelines on tweet."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Use asynchronous fan-out workers, consuming from a message queue, to push tweet IDs into Redis timelines."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "At tweet storm scale, how do you prevent fan-out write amplification from overwhelming Redis."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Adopt a hybrid push/pull model, pushing to active followers while others pull on-demand, significantly reducing Redis writes."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does on-demand pulling impact p99 latency for pulled timelines."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "On-demand pulling increases p99 latency due to live database lookups and compute, especially under high load and cache..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you ensure that \"compute\" for on-demand pulled timelines remains under 50ms p99 at..."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Cache hot timeline segments in Redis and optimize database queries with indexing and sharding for rapid retrieval."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What specific system ensures that complex timeline assembly itself meets 50ms p99."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Pre-computed materialized timeline views, served from a low-latency distributed key-value store like Redis Cluster, ensure 50ms p99."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How are pre-computed views updated for real-time tweet freshness."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-23T18:31:53.684466Z"
+    }
+  },
+  {
+    "id": 42,
+    "student_level": "excellent",
+    "difficulty": "easy",
+    "exchanges": 6,
+    "kickoff_question": "Design a basic image upload service; how would you store images?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a basic image upload service; how would you store images?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Store image files in S3 for petabyte-scale durability, with their metadata (URL, user ID) in a Postgres database."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What component receives the image when a user uploads it."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "An API Gateway receives the image upload, validates it, and routes it to an image processing service."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the image get to S3 from the processing service."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "The processing service uploads image bytes directly to an S3 bucket using the AWS SDK's `PutObject` call, authenticated..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if many users upload images simultaneously."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Load balance uploads to S3, queueing requests for asynchronous image processing by auto-scaling workers."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What happens after a worker processes an image."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Actually... Worker uploads processed image to S3, updates job status in DynamoDB, then sends completion to SQS."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the user access the newly uploaded image."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-23T18:33:00.711944Z"
+    }
+  },
+  {
+    "id": 43,
+    "student_level": "excellent",
+    "difficulty": "hard",
+    "exchanges": 6,
+    "kickoff_question": "Design a distributed file system like GFS storing 100PB; how ensure consistency?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a distributed file system like GFS storing 100PB; how ensure consistency?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Master grants primary replica leases to serialize mutations, which are propagated to secondaries for consistent data across 3x..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Which distributed consensus protocol backs the master's lease grants."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Raft ensures the master's lease grants are durably replicated and consistently agreed upon by a majority of servers."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the new Raft leader fence a partitioned old master to prevent stale leases."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "The new leader commits an entry from its term to the majority, fencing the old master and invalidating..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do replicas use the new leader's term to reject old master's lease grants."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Replicas reject an old master's lease grants if the incoming term is less than their stored current term."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Does that committed term actively revoke all existing leases on chunkservers."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "No, leases are per-chunk; a committed operation does not globally revoke all existing chunkserver leases."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do chunkservers then learn of the new master's term to invalidate existing leases."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-23T18:34:51.422278Z"
+    }
+  },
+  {
+    "id": 44,
+    "student_level": "average",
+    "difficulty": "hard",
+    "exchanges": 7,
+    "kickoff_question": "Design Netflix's CDN serving 200M concurrent streams; how minimize buffering globally?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design Netflix's CDN serving 200M concurrent streams; how minimize buffering globally?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Maybe... We'd probably use a globally distributed network of edge caches, maybe with Anycast, to serve content closer to..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Given edge cache misses/failures, what immediate mechanism prevents stream interruption."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "the CDN automatically reroutes traffic to origin or a healthy regional cache."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do DNS TTLs or Anycast ensure *sub-second* rerouting propagation."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Probably... Anycast, probably via BGP, reroutes traffic sub-second by rapidly changing network paths to a healthy endpoint."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "BGP convergence times can be seconds."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "True, but often it can probably take longer, especially across many AS's with complex policies."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Beyond BGP, what client-side or network-layer mechanism achieves sub-second failover."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Probably... Client-side libraries with aggressive health checks and rapid connection retries probably achieve sub-second failover."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the client *rapidly discover* a *new* healthy stream source."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Maybe a rapidly updated service registry tracks new healthy sources for clients to quickly query."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What global consensus protocol ensures *sub-second* registry updates across regions."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-23T18:36:14.014134Z"
+    }
+  },
+  {
+    "id": 45,
+    "student_level": "average",
+    "difficulty": "medium",
+    "exchanges": 8,
+    "kickoff_question": "Design a food delivery system; how do you handle real-time tracking?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a food delivery system; how do you handle real-time tracking?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "We'd probably use WebSockets for real-time updates, maybe a pub/sub system like Redis or Kafka to distribute locations."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do drivers' devices send their location updates into this pub/sub system."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I think... They probably send HTTP/S requests to an API endpoint, which then publishes the location updates to a topic."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What's the expected frequency of these location updates."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "around every 5 to 10 seconds, probably adjusting based on accuracy needs and battery impact."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Considering 1 million active drivers, what's the QPS for location updates."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "If drivers update every ~5-10 seconds, we'd probably see around 100k-200k QPS, maybe more."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Considering that ingestion rate, where are these locations stored for retrieval."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "probably a distributed NoSQL database like Cassandra, maybe sharded, for high ingestion and fast retrieval."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does Cassandra efficiently retrieve nearby drivers for a given customer."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Maybe using geohashing to partition regions, storing drivers by their geohash for efficient range lookups."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the system update a driver's geohash when they move between grid cells."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "The driver's app probably detects the geohash change and sends it to a location service, maybe for re-indexing..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does Cassandra handle the data migration for a driver moving between geohash partitions."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-23T18:37:51.191786Z"
+    }
+  },
+  {
+    "id": 46,
+    "student_level": "struggling",
+    "difficulty": "easy",
+    "exchanges": 10,
+    "kickoff_question": "Design a simple notification service; what's your approach?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a simple notification service; what's your approach?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How would a user typically send a notification, like a message."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess they just type it and click a send button."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "After clicking send, where does that notification message go first."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess it first hits our backend server, right."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Good."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess, then… how about scalability, maybe."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Exactly."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "um, maybe it's about adding more servers."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do requests get to those multiple servers."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess a load balancer distributes them, somehow."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Where would the servers store the notification message."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess in a database or something."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What happens after the message is saved to the database."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess a push notification is sent to the other user, maybe."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does that push notification get sent to the user's device."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess the backend sends it to Apple or Google, then they push it to the device."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if the user's device is offline when Apple/Google tries to push it."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-23T18:45:42.145760Z"
+    }
+  },
+  {
+    "id": 47,
+    "student_level": "struggling",
+    "difficulty": "hard",
+    "exchanges": 9,
+    "kickoff_question": "Design YouTube's video recommendation engine at petabyte scale; how do you optimize latency?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design YouTube's video recommendation engine at petabyte scale; how do you optimize latency?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess precompute recommendations and maybe use a big cache."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you precompute petabyte-scale recommendations while maintaining sub-second freshness."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess we could precompute, then incrementally update a very fast cache."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do you process petabytes of real-time user events for sub-second recommendation updates."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess stream it with Kafka, then like, a really fast database."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What specific stream processing framework achieves sub-second latency over petabytes of events."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Apache Flink, maybe, for low latency at scale, I guess."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does Flink's stateful fault tolerance avoid degrading sub-second latency."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess it uses asynchronous checkpointing to avoid blocking stream processing."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does Flink's *exact* asynchronous checkpointing strategy minimize recovery impact on active processing."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Um, I guess asynchronous checkpoints let tasks keep running, so recovery causes less disruption."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "If tasks stop during recovery for exact-once, how does Flink *still* achieve minimal disruption."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess it quickly restarts from consistent checkpoints, minimizing the overall downtime."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What specific *state management strategy* enables Flink's rapid state restoration for exact-once recovery."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I guess Flink uses asynchronous checkpointing to external storage, right."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does Flink's *checkpointing strategy* minimize data transfer during large state recovery."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-23T18:47:42.804903Z"
+    }
+  },
+  {
+    "id": 48,
+    "student_level": "average",
+    "difficulty": "hard",
+    "exchanges": 6,
+    "kickoff_question": "Design a distributed transaction system with strict consistency; what's your consensus protocol?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a distributed transaction system with strict consistency; what's your consensus protocol?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "We'd probably use Raft for strong consistency, or maybe Paxos, to ensure agreement among nodes."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does Raft ensure atomicity for multi-partition transactions, and what's the latency impact."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Maybe... Raft is single-partition; for multi-partition atomicity, maybe 2PC coordinates across Raft groups, probably adding significant latency."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What's the recovery strategy for a 2PC transaction when the coordinator fails after `prepare`."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "I think... Participants are prepared and blocked; the coordinator probably recovers its state log and polls them to commit or..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if the coordinator's log is unrecoverable, causing indefinite participant blocking."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Participants would probably time out and abort the transaction, maybe needing manual cleanup."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does that timeout-abort strategy maintain strict atomicity without manual intervention."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "It probably triggers a full rollback of the operation, ensuring no partial state persists if it fails or..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How is global agreement on rollback reached if the coordinator is down."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-23T18:48:50.383393Z"
+    }
+  },
+  {
+    "id": 49,
+    "student_level": "excellent",
+    "difficulty": "easy",
+    "exchanges": 10,
+    "kickoff_question": "Design a simple blog platform; what's your high-level architecture?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a simple blog platform; what's your high-level architecture?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "A web server serves frontend assets and proxies to an application server, which interacts with a relational database..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does a new blog post get saved in this setup."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "An author submits content via UI, which calls a backend API storing the post into a PostgreSQL database."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if many readers want to see this post; how would that work efficiently."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Utilize a CDN to cache popular posts globally, offloading read requests from origin servers and databases, scaling efficiently."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if the application server itself gets overwhelmed."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Actually... Horizontally scale application servers behind a load balancer to distribute request throughput."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if the database becomes a bottleneck with many users."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Add read replicas for horizontal scaling and a caching layer to reduce database hits and offload query traffic."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if the primary database server suddenly stops working."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "An automatic failover system promotes a synchronized replica to primary, ensuring continuous operation."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the replica stay updated with the primary database."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Primary streams its WAL/binlog to replicas, which apply these changes for eventual consistency."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How quickly does data appear on replicas."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Asynchronous replication propagates data to replicas within 5-50ms, contingent on network latency and write throughput."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What if a user immediately tries to read their newly created post."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Direct the subsequent read request for that specific post to the write master, bypassing read replicas, to guarantee..."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does the application know which database to query for a specific post."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-23T18:50:53.359139Z"
+    }
+  },
+  {
+    "id": 50,
+    "student_level": "average",
+    "difficulty": "medium",
+    "exchanges": 8,
+    "kickoff_question": "Design a news feed system for 10M users; what's your architecture?",
+    "turns": [
+      {
+        "speaker": "Interviewer",
+        "text": "Design a news feed system for 10M users; what's your architecture?"
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Maybe... We'd probably use a fan-out service, with Redis for timelines and Kafka for async updates, maybe a CDN."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "You mentioned Redis for timelines; what's your strategy for its read/write scaling."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "We'd probably use read replicas for scaling reads, and maybe Redis Cluster for sharding writes across instances."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does your fan-out service process Kafka messages to update Redis timelines."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "It probably consumes Kafka messages, determines fan-out recipients, and updates their Redis timelines."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does it perform many Redis timeline updates concurrently."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "a worker pool sends batched updates using Redis pipelining, maybe asynchronously, for efficient concurrency."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How does it handle partial failures within a batched Redis update."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Probably we log failed keys and retry them individually, maybe using `MULTI`/`EXEC` for better atomicity."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "Where do news articles and media content actually reside."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "They probably reside in object storage or databases, with media assets cached on a CDN, maybe."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "How do users retrieve full article content from these storage types."
+      },
+      {
+        "speaker": "Candidate",
+        "text": "Users probably retrieve content via URLs from object storage or a CDN, maybe referenced by a database."
+      },
+      {
+        "speaker": "Interviewer",
+        "text": "What data does your Redis timeline store per news item to enable content retrieval."
+      }
+    ],
+    "meta": {
+      "model": "gemini-2.5-flash",
+      "generated_at": "2025-10-23T18:52:23.639012Z"
+    }
+  }
+]
