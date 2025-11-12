@@ -1,0 +1,48 @@
+System Design Interview Clean Rubrics
+ 
+1. Problem Understanding & Requirement Gathering
+How well the candidate clarifies scope, asks relevant questions, and identifies key constraints through dialogue
+Evidence: Questions about scale, users, features; clarifying edge cases; quantifying targets (QPS, storage, users)
+
+2. Structured Problem-Solving Approach
+Candidate's ability to break down the problem systematically and communicate their thought process clearly
+Evidence: Logical progression, organized thinking, clear communication of next steps, building incrementally
+
+3. High-Level Architecture & Design Evolution
+How the candidate develops and refines their architecture through the conversation turns
+Evidence: Component identification, service boundaries, data flow explanation, architecture refinement based on follow-up questions
+
+
+4. Technical Depth & Implementation Details
+Candidate's ability to dive deeper when prompted and provide concrete technical solutions
+Evidence: Database choices, API designs, algorithms, data structures, specific technologies mentioned with justification
+
+5. Scalability & Performance Reasoning
+How candidate addresses scale challenges and performance bottlenecks through the dialogue
+Evidence: Scaling strategies, bottleneck identification, load handling, caching strategies, partitioning approaches
+
+6. Trade-off Analysis & Decision Justification
+Candidate's ability to compare alternatives and justify decisions when challenged by interviewer
+Evidence: Pros/cons discussion, CAP theorem application, cost vs. performance trade-offs, explaining why option A over B
+
+7. Handling Follow-up Questions & Adaptability
+How well candidate responds to interviewer's probing questions and adapts their design
+Evidence: Thoughtful responses to edge cases, design modifications, handling interviewer challenges, admitting unknowns appropriately
+
+8. Reliability & Fault Tolerance Considerations
+Candidate's awareness of failure modes and resilience strategies when prompted
+Evidence: Discussing single points of failure, replication, disaster recovery, circuit breakers when asked
+
+9. Communication & Collaboration
+Clarity of explanation, engagement with interviewer, and collaborative problem-solving style
+Evidence: Clear explanations, good use of examples, asking for clarification, collaborative tone
+
+
+10. Completeness & Time tracking
+How well the candidate covers the problem scope within the conversation flow
+Evidence: Addressing most important aspects, not getting stuck on details, progressing through the design
+
+Scoring Scale (0-2):
+0: Not addressed or fundamentally incorrect responses
+1: Basic responses with some correct elements
+2: Excellent, detailed responses demonstrating expertise
