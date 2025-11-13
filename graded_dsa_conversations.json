@@ -1,0 +1,502 @@
+{
+    "1": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 2,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "2": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 1,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "3": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 1,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "4": {
+        "Ask clarifying questions": 0,
+        "Propose brute force": 0,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "5": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 0,
+        "Reach optimal sol finally": 1,
+        "Handle edge cases": 0,
+        "Correct explanation of approach": 1,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 1
+    },
+    "6": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "7": {
+        "Ask clarifying questions": 0,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 0,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "8": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 0,
+        "Provide space+time complexity": 0,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 0,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "9": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 0,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "10": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 1,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "11": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "12": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 0,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "13": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "14": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 2,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "15": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 0,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "16": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 0,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "17": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "18": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "19": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 0,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "20": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 0,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "21": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "22": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 0,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "23": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "24": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 2,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "25": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 0,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "26": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "27": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 0,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 0,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "28": {
+        "Ask clarifying questions": 0,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 0,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "29": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 0,
+        "Provide space+time complexity": 1,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "30": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 1,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "31": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "32": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 2,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "33": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 1,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 0,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "34": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 0,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "35": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 0,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "36": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 0,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 0,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "37": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 0,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "38": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 2,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "39": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "40": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 2,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 0,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "41": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "42": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "43": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "44": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "45": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 0,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 0,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "46": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 0,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "47": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 2,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 0,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "48": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "49": {
+        "Ask clarifying questions": 1,
+        "Propose brute force": 0,
+        "Provide space+time complexity": 1,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 2,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    },
+    "50": {
+        "Ask clarifying questions": 2,
+        "Propose brute force": 1,
+        "Provide space+time complexity": 2,
+        "Reach optimal sol finally": 2,
+        "Handle edge cases": 1,
+        "Correct explanation of approach": 2,
+        "Polite + respectful tone": 2,
+        "Logical progression of conversation": 2
+    }
+}
