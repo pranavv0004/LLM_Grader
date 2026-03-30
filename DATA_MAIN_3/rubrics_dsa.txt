@@ -1,0 +1,15 @@
+Rubrics for DSA interview
+
+Ask clarifying questions
+Propose brute force
+Provide space+time complexity 
+Reach optimal sol finally 
+Handle edge cases 
+Correct explanation of approach 
+Polite + respectful tone 
+Logical progression of conversation
+
+Scoring Scale (0-2):
+0: Not addressed or fundamentally incorrect responses
+1: Basic responses with some correct elements
+2: Excellent, detailed responses demonstrating expertise
